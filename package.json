@@ -1,6 +1,6 @@
 {
-  "name": "@twilio/voice-react-native-sdk",
-  "version": "1.6.2-dev",
+  "name": "@contractorai/voice-react-native-sdk",
+  "version": "1.6.2-fork.1",
   "description": "Twilio Voice React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -44,13 +44,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/twilio/twilio-voice-react-native",
-  "author": "Michael Huynh <mhuynh@twilio.com> (https://github.com/twilio)",
+  "repository": "https://github.com/ContractorAI/twilio-voice-react-native-expo",
+  "author": "Domenic Belcastro (https://github.com/domenic39)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/twilio/twilio-voice-react-native/issues"
+    "url": "https://github.com/ContractorAI/twilio-voice-react-native-expo/issues"
   },
-  "homepage": "https://github.com/twilio/twilio-voice-react-native#readme",
+  "homepage": "https://github.com/ContractorAI/twilio-voice-react-native-expo#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
