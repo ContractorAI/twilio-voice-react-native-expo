@@ -18,15 +18,17 @@ class ExpoModule : Module() {
             val uuid = UUID.randomUUID()
             val callListenerProxy = CallListenerProxy(uuid, context)
 
+            val call = VoiceApplicationProxy.getVoiceServiceApi().connect(
+                connectOptions,
+                callListenerProxy
+            )
+
             val callRecord = CallRecordDatabase.CallRecord(
                 uuid,
-                VoiceApplicationProxy.getVoiceServiceApi().connect(
-                    connectOptions,
-                    callListenerProxy
-                ),
+                call,
                 "Callee", // provide a mechanism for determining the name of the callee
                 HashMap(), // provide a mechanism for passing custom TwiML parameters
-                CallRecord.Direction.OUTGOING,
+                CallRecordDatabase.CallRecord.Direction.OUTGOING,
                 "Display Name" // provide a mechanism for determining the notification display name of the callee
             )
 
