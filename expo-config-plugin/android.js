@@ -1,11 +1,15 @@
 /* eslint-disable no-shadow */
 const {
   withAppBuildGradle,
+  withProjectBuildGradle,
   withAndroidManifest,
   withStringsXml,
 } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
+
+const googleServicesClassPath = 'com.google.gms:google-services';
+const googleServicesVersion = '4.4.1';
 
 function withTwilioVoiceAndroid(config, options = {}) {
   const {
@@ -125,6 +129,14 @@ function withTwilioVoiceAndroid(config, options = {}) {
     return config;
   });
 
+  config = withProjectBuildGradle(config, (config) => {
+    config.modResults.contents = setClassPath(
+      config,
+      config.modResults.contents
+    );
+    return config;
+  });
+
   if (googleServicesJsonPath && fs.existsSync(googleServicesJsonPath)) {
     config = withAppBuildGradle(config, (config) => {
       console.log(
@@ -134,6 +146,8 @@ function withTwilioVoiceAndroid(config, options = {}) {
       return config;
     });
   }
+
+  config = withGoogleServicesJson(config, googleServicesJsonPath);
 
   return config;
 }
@@ -158,6 +172,19 @@ function withGoogleServicesJson(config, googleServicesJsonPath) {
     }
     return config;
   });
+}
+
+function setClassPath(config, buildGradle) {
+  if (buildGradle.includes(googleServicesClassPath)) {
+    return buildGradle;
+  }
+
+  //
+  return buildGradle.replace(
+    /dependencies\s?{/,
+    `dependencies {
+        classpath('${googleServicesClassPath}:${googleServicesVersion}')`
+  );
 }
 
 module.exports = withTwilioVoiceAndroid;

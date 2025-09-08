@@ -1,6 +1,6 @@
 {
   "name": "@domenic39/voice-react-native-sdk",
-  "version": "1.6.2-fork.3",
+  "version": "1.6.2-fork.4",
   "description": "Twilio Voice React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -15,6 +15,7 @@
     "cpp",
     "twilio-voice-react-native.podspec",
     "expo-config-plugin",
+    "expo-module.config.js",
     "!lib/typescript/test/app",
     "!android/build",
     "!ios/build",
