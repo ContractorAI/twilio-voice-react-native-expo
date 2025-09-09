@@ -9,7 +9,7 @@ class ExpoModule : Module() {
     private val log = SDKLog(this.javaClass)
 
     override fun definition() = ModuleDefinition {
-        Name("TwilioVoiceReactNative")
+        Name("TwilioVoiceExpo")
 
         Function("voice_connect") { accessToken: String ->
             val context = appContext.reactContext ?: return@Function
