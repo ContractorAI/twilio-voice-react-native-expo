@@ -12,10 +12,12 @@ class ExpoModule : Module() {
     override fun definition() = ModuleDefinition {
         Name("TwilioVoiceExpo")
 
-        Function("voice_connect") { accessToken: String ->
+        Function("voice_connect") { accessToken: String, params: Map<String, Any>, customParameters: Map<String, Any> ->
             val context = appContext.reactContext ?: return@Function
 
-            val connectOptions = ConnectOptions.Builder(accessToken).build()
+            val connectOptions = ConnectOptions.Builder(accessToken)
+                .params(params)
+                .build()
             val uuid = UUID.randomUUID()
             val callListenerProxy = CallListenerProxy(uuid, context)
 
@@ -28,7 +30,7 @@ class ExpoModule : Module() {
                 uuid,
                 call,
                 "Callee", // provide a mechanism for determining the name of the callee
-                HashMap(), // provide a mechanism for passing custom TwiML parameters
+                customParameters, // use the custom parameters passed from the caller
                 CallRecordDatabase.CallRecord.Direction.OUTGOING,
                 "Display Name" // provide a mechanism for determining the notification display name of the callee
             )

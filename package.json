@@ -1,6 +1,6 @@
 {
   "name": "voice-react-native-sdk",
-  "version": "1.6.2-fork.8",
+  "version": "1.6.2-fork.9",
   "description": "Twilio Voice React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

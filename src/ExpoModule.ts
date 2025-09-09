@@ -25,11 +25,16 @@ class ExpoNativeModule {
     const { params = {}, customParameters = {} } = options;
     let info: NativeCallInfo;
     if (Platform.OS === 'android' && this.androidExpoNativeModule) {
-      info = await this.androidExpoNativeModule.voice_connect(
-        accessToken,
-        params,
-        customParameters
-      );
+      try {
+        info = await this.androidExpoNativeModule.voice_connect(
+          accessToken,
+          params,
+          customParameters
+        );
+      } catch (e) {
+        console.log('Error calling the android expo module!', e);
+        throw e;
+      }
     } else if (Platform.OS === 'ios') {
       info = await NativeModule.voice_connect_ios(
         accessToken,
