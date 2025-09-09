@@ -4,6 +4,7 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import com.twilio.voice.ConnectOptions
 import java.util.UUID
+import com.twiliovoicereactnative.ReactNativeArgumentsSerializer.serializeCall
 
 class ExpoModule : Module() {
     private val log = SDKLog(this.javaClass)
@@ -33,6 +34,8 @@ class ExpoModule : Module() {
             )
 
             VoiceApplicationProxy.getCallRecordDatabase().add(callRecord)
+            
+            serializeCall(callRecord)
         }
     }
 }
