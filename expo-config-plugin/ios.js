@@ -12,7 +12,7 @@ function withTwilioVoiceIOS(config) {
   });
 
   config = withEntitlementsPlist(config, (configuration) => {
-    configuration.modResults['aps-environment'] = ['development'];
+    configuration.modResults['aps-environment'] = 'development';
     return configuration;
   });
 
