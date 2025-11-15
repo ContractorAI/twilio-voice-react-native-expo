@@ -329,7 +329,8 @@ public class VoiceService extends Service {
     createOrReplaceNotification(callRecord.getNotificationId(), notification);
 
     // stop active sound (if any)
-    VoiceApplicationProxy.getMediaPlayerManager().stop();
+    // 11-14-25: We can keep the sound playing to indicate that the call is still pending pickup.
+    //VoiceApplicationProxy.getMediaPlayerManager().stop();
 
     // notify JS layer
     sendJSEvent(
