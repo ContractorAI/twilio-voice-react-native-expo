@@ -103,36 +103,41 @@ public class VoiceService extends Service {
     // apparently the system can recreate the service without sending it an intent so protect
     // against that case (GH-430).
     if (null != intent) {
+      final CallRecordDatabase.CallRecord callRecord = getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+      if (null == callRecord) {
+        logger.warning("No call record found");
+        return START_NOT_STICKY;
+      }
       switch (Objects.requireNonNull(intent.getAction())) {
         case ACTION_INCOMING_CALL:
-          incomingCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          incomingCall(callRecord);
           break;
         case ACTION_ACCEPT_CALL:
           try {
-            acceptCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+            acceptCall(callRecord);
           } catch (SecurityException e) {
             sendPermissionsError();
             logger.warning(e, "Cannot accept call, lacking necessary permissions");
           }
           break;
         case ACTION_REJECT_CALL:
-          rejectCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          rejectCall(callRecord);
           break;
         case ACTION_CANCEL_CALL:
-          cancelCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          cancelCall(callRecord);
           break;
         case ACTION_CALL_DISCONNECT:
-          disconnect(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          disconnect(callRecord);
           break;
         case ACTION_RAISE_OUTGOING_CALL_NOTIFICATION:
-          raiseOutgoingCallNotification(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          raiseOutgoingCallNotification(callRecord);
           break;
         case ACTION_CANCEL_ACTIVE_CALL_NOTIFICATION:
-          cancelActiveCallNotification(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          cancelActiveCallNotification(callRecord);
           break;
         case ACTION_FOREGROUND_AND_DEPRIORITIZE_INCOMING_CALL_NOTIFICATION:
           foregroundAndDeprioritizeIncomingCallNotification(
-            getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+            callRecord);
           break;
         case ACTION_PUSH_APP_TO_FOREGROUND:
           logger.warning("VoiceService received foreground request, ignoring");
@@ -387,9 +392,11 @@ public class VoiceService extends Service {
   private static UUID getMessageUUID(@NonNull final Intent intent) {
     return (UUID)intent.getSerializableExtra(Constants.MSG_KEY_UUID);
   }
+  /*
   private static CallRecordDatabase.CallRecord getCallRecord(final UUID uuid) {
     return Objects.requireNonNull(getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(uuid)));
   }
+  */
   private static void sendJSEvent(@NonNull String scope, @NonNull WritableMap event) {
     getJSEventEmitter().sendEvent(scope, event);
   }
