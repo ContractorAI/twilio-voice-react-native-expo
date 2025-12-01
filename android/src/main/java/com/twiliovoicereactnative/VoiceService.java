@@ -164,7 +164,6 @@ public class VoiceService extends Service {
             return START_NOT_STICKY;
           }
           foregroundAndDeprioritizeIncomingCallNotification(callRecord);
-            getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
           break;
         case ACTION_PUSH_APP_TO_FOREGROUND:
           logger.warning("VoiceService received foreground request, ignoring");
