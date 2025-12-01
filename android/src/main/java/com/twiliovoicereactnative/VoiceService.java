@@ -431,6 +431,7 @@ public class VoiceService extends Service {
     final CallRecordDatabase.CallRecord callRecord = getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(uuid));
     if (null == callRecord) {
       logger.warning("No call record found");
+      sendCallDoesNotExistError();
       return null;
     }
     return callRecord;
@@ -441,6 +442,15 @@ public class VoiceService extends Service {
   private static void sendPermissionsError() {
     final String errorMessage = "Missing permissions.";
     final int errorCode = 31401;
+    getJSEventEmitter().sendEvent(ScopeVoice, constructJSMap(
+      new Pair<>(VoiceEventType, VoiceEventError),
+      new Pair<>(VoiceErrorKeyError, serializeError(errorCode, errorMessage))
+    ));
+  }
+
+  private static void sendCallDoesNotExistError() {
+    final String errorMessage = "Call does not exist.";
+    final int errorCode = 31481;
     getJSEventEmitter().sendEvent(ScopeVoice, constructJSMap(
       new Pair<>(VoiceEventType, VoiceEventError),
       new Pair<>(VoiceErrorKeyError, serializeError(errorCode, errorMessage))
