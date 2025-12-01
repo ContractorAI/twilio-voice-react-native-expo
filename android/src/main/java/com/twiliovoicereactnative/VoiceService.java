@@ -105,33 +105,65 @@ public class VoiceService extends Service {
     if (null != intent) {
       switch (Objects.requireNonNull(intent.getAction())) {
         case ACTION_INCOMING_CALL:
-          incomingCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          incomingCall(callRecord);
           break;
         case ACTION_ACCEPT_CALL:
           try {
-            acceptCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+            final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+            if (null == callRecord) {
+              return START_NOT_STICKY;
+            }
+            acceptCall(callRecord);
           } catch (SecurityException e) {
             sendPermissionsError();
             logger.warning(e, "Cannot accept call, lacking necessary permissions");
           }
           break;
         case ACTION_REJECT_CALL:
-          rejectCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          rejectCall(callRecord);
           break;
         case ACTION_CANCEL_CALL:
-          cancelCall(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          cancelCall(callRecord);
           break;
         case ACTION_CALL_DISCONNECT:
-          disconnect(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          disconnect(callRecord);
           break;
         case ACTION_RAISE_OUTGOING_CALL_NOTIFICATION:
-          raiseOutgoingCallNotification(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          raiseOutgoingCallNotification(callRecord);
           break;
         case ACTION_CANCEL_ACTIVE_CALL_NOTIFICATION:
-          cancelActiveCallNotification(getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          cancelActiveCallNotification(callRecord);
           break;
         case ACTION_FOREGROUND_AND_DEPRIORITIZE_INCOMING_CALL_NOTIFICATION:
-          foregroundAndDeprioritizeIncomingCallNotification(
+          final CallRecordDatabase.CallRecord callRecord = getCallRecord(Objects.requireNonNull(getMessageUUID(intent)));
+          if (null == callRecord) {
+            return START_NOT_STICKY;
+          }
+          foregroundAndDeprioritizeIncomingCallNotification(callRecord);
             getCallRecord(Objects.requireNonNull(getMessageUUID(intent))));
           break;
         case ACTION_PUSH_APP_TO_FOREGROUND:
@@ -388,7 +420,13 @@ public class VoiceService extends Service {
     return (UUID)intent.getSerializableExtra(Constants.MSG_KEY_UUID);
   }
   private static CallRecordDatabase.CallRecord getCallRecord(final UUID uuid) {
-    return Objects.requireNonNull(getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(uuid)));
+    //return Objects.requireNonNull(getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(uuid)));
+    final CallRecordDatabase.CallRecord callRecord = getCallRecordDatabase().get(new CallRecordDatabase.CallRecord(uuid));
+    if (null == callRecord) {
+      logger.warning("No call record found");
+      return null;
+    }
+    return callRecord;
   }
   private static void sendJSEvent(@NonNull String scope, @NonNull WritableMap event) {
     getJSEventEmitter().sendEvent(scope, event);
