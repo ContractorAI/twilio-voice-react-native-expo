@@ -367,8 +367,8 @@ public class VoiceService extends Service {
       VOICE_CHANNEL_DEFAULT_IMPORTANCE);
     createOrReplaceNotification(callRecord.getNotificationId(), notification);
 
-    // stop active sound (if any)
-    VoiceApplicationProxy.getMediaPlayerManager().stop();
+    // https://github.com/twilio/twilio-voice-react-native/issues/473
+   //VoiceApplicationProxy.getMediaPlayerManager().stop();
 
     // notify JS layer
     sendJSEvent(
