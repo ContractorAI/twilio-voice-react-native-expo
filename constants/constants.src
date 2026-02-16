@@ -113,6 +113,7 @@ CallEventDisconnected=callEventDisconnected
 CallEventReconnecting=callEventReconnecting
 CallEventReconnected=callEventReconnected
 CallEventRinging=callEventRinging
+CallEventHold=callEventHold
 
 // Quality warnings
 CallEventQualityWarningsChanged=callEventQualityWarningsChanged

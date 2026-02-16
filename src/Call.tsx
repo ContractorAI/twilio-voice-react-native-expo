@@ -15,6 +15,11 @@ import type {
   NativeCallInfo,
   NativeCallFeedbackIssue,
   NativeCallFeedbackScore,
+  NativeCallConnectFailureEvent,
+  NativeCallDisconnectedEvent,
+  NativeCallReconnectingEvent,
+  NativeCallQualityWarningsEvent,
+  NativeCallMessageReceivedEvent,
 } from './type/Call';
 import type { CustomParameters, Uuid } from './type/common';
 import type { TwilioError } from './error/TwilioError';
@@ -581,7 +586,8 @@ export class Call extends EventEmitter {
 
     this._update(nativeCallEvent);
 
-    const { message, code } = nativeCallEvent.error;
+    const event = nativeCallEvent as NativeCallConnectFailureEvent;
+    const { message, code } = event.error;
     const error = constructTwilioError(message, code);
     this.emit(Call.Event.ConnectFailure, error);
   };
@@ -600,8 +606,9 @@ export class Call extends EventEmitter {
 
     this._update(nativeCallEvent);
 
-    if (nativeCallEvent.error) {
-      const { message, code } = nativeCallEvent.error;
+    const event = nativeCallEvent as NativeCallDisconnectedEvent;
+    if (event.error) {
+      const { message, code } = event.error;
       const error = constructTwilioError(message, code);
       this.emit(Call.Event.Disconnected, error);
     } else {
@@ -623,7 +630,8 @@ export class Call extends EventEmitter {
 
     this._update(nativeCallEvent);
 
-    const { message, code } = nativeCallEvent.error;
+    const event = nativeCallEvent as NativeCallReconnectingEvent;
+    const { message, code } = event.error;
     const error = constructTwilioError(message, code);
     this.emit(Call.Event.Reconnecting, error);
   };
@@ -697,9 +705,9 @@ export class Call extends EventEmitter {
 
     this._update(nativeCallEvent);
 
-    const currentWarnings = nativeCallEvent[Constants.CallEventCurrentWarnings];
-    const previousWarnings =
-      nativeCallEvent[Constants.CallEventPreviousWarnings];
+    const event = nativeCallEvent as NativeCallQualityWarningsEvent;
+    const currentWarnings = event[Constants.CallEventCurrentWarnings];
+    const previousWarnings = event[Constants.CallEventPreviousWarnings];
 
     this.emit(
       Call.Event.QualityWarningsChanged,
@@ -722,7 +730,8 @@ export class Call extends EventEmitter {
 
     this._update(nativeCallEvent);
 
-    const { callMessage: callMessageInfo } = nativeCallEvent;
+    const event = nativeCallEvent as NativeCallMessageReceivedEvent;
+    const { callMessage: callMessageInfo } = event;
 
     const incomingCallMessage = new IncomingCallMessage(callMessageInfo);
 
