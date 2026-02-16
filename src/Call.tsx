@@ -77,6 +77,9 @@ export declare interface Call {
   ): boolean;
 
   /** @internal */
+  emit(holdEvent: Call.Event.Hold, isOnHold: boolean): boolean;
+
+  /** @internal */
   emit(
     messageReceivedEvent: Call.Event.MessageReceived,
     incomingCallMessage: IncomingCallMessage
@@ -254,6 +257,28 @@ export declare interface Call {
    * {@inheritDoc (Call:interface).(addListener:6)}
    */
   on(ringingEvent: Call.Event.Ringing, listener: Call.Listener.Ringing): this;
+
+  /**
+   * Hold event. Raised when the call hold state changes, for example when the
+   * user swaps between calls using the native CallKit UI on iOS.
+   *
+   * @example
+   * ```typescript
+   * call.addListener(Call.Event.Hold, (isOnHold) => {
+   *   // call hold state has changed
+   * });
+   * ```
+   *
+   * @param holdEvent - The raised event string.
+   * @param listener - A listener function that will be invoked when the event
+   * is raised.
+   * @returns - The call object.
+   */
+  addListener(holdEvent: Call.Event.Hold, listener: Call.Listener.Hold): this;
+  /**
+   * {@inheritDoc (Call:interface).(addListener:9)}
+   */
+  on(holdEvent: Call.Event.Hold, listener: Call.Listener.Hold): this;
 
   /**
    * Quality warnings changed event. Raised when a call quality warning is set
@@ -458,6 +483,7 @@ export class Call extends EventEmitter {
       [Constants.CallEventReconnected]: this._handleReconnectedEvent,
       [Constants.CallEventReconnecting]: this._handleReconnectingEvent,
       [Constants.CallEventRinging]: this._handleRingingEvent,
+      [Constants.CallEventHold]: this._handleHoldEvent,
 
       /**
        * Call Quality
@@ -508,7 +534,7 @@ export class Call extends EventEmitter {
    */
   private _update({
     type,
-    call: { from, initialConnectedTimestamp, sid, to },
+    call: { from, initialConnectedTimestamp, isOnHold, isMuted, sid, to },
   }: NativeCallEvent) {
     const newState = eventTypeStateMap[type];
     if (typeof newState === 'string') {
@@ -518,6 +544,8 @@ export class Call extends EventEmitter {
     this._initialConnectedTimestamp = initialConnectedTimestamp
       ? new Date(initialConnectedTimestamp)
       : undefined;
+    this._isOnHold = isOnHold;
+    this._isMuted = isMuted;
     this._sid = sid;
     this._to = to;
   }
@@ -632,6 +660,24 @@ export class Call extends EventEmitter {
     this._update(nativeCallEvent);
 
     this.emit(Call.Event.Ringing);
+  };
+
+  /**
+   * Handler for the {@link (Call:namespace).Event.Hold} event.
+   * Raised when the call hold state changes via the native CallKit UI.
+   * @param nativeCallEvent - The native call event.
+   */
+  private _handleHoldEvent = (nativeCallEvent: NativeCallEvent) => {
+    if (nativeCallEvent.type !== Constants.CallEventHold) {
+      throw new Error(
+        'Incorrect "call#hold" handler called for type ' +
+          `"${nativeCallEvent.type}".`
+      );
+    }
+
+    this._update(nativeCallEvent);
+
+    this.emit(Call.Event.Hold, this._isOnHold ?? false);
   };
 
   /**
@@ -1022,6 +1068,12 @@ export namespace Call {
     'Ringing' = 'ringing',
 
     /**
+     * Event string for the `Hold` event.
+     * See {@link (Call:interface).(addListener:9)}.
+     */
+    'Hold' = 'hold',
+
+    /**
      * Event string for the `QualityWarningsChanged` event.
      * See {@link (Call:interface).(addListener:7)}.
      */
@@ -1252,6 +1304,17 @@ export namespace Call {
      * See {@link (Call:interface).(addListener:6)}.
      */
     export type Ringing = () => void;
+
+    /**
+     * Hold event listener. This should be the function signature of any
+     * event listener bound to the {@link (Call:namespace).Event.Hold} event.
+     *
+     * @remarks
+     * See {@link (Call:interface).(addListener:9)}.
+     *
+     * @param isOnHold - A boolean indicating whether the call is now on hold.
+     */
+    export type Hold = (isOnHold: boolean) => void;
 
     /**
      * Quality warnings changed event listener. This should be the function

@@ -308,6 +308,9 @@ NSString * const kDefaultCallKitConfigurationName = @"Twilio Voice React Native"
     if (self.callMap[action.callUUID.UUIDString]) {
         TVOCall *call = self.callMap[action.callUUID.UUIDString];
         [call setOnHold:action.isOnHold];
+        [self sendEventWithName:kTwilioVoiceReactNativeScopeCall
+                           body:@{kTwilioVoiceReactNativeVoiceEventType: kTwilioVoiceReactNativeCallEventHold,
+                                  kTwilioVoiceReactNativeEventKeyCall: [self callInfo:call]}];
         [action fulfill];
     } else {
         [action fail];
