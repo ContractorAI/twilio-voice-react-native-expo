@@ -6,6 +6,7 @@
 //
 
 @import AVKit;
+@import CallKit;
 
 #import "TwilioVoicePushRegistry.h"
 #import "TwilioVoiceReactNative.h"
@@ -780,9 +781,21 @@ RCT_EXPORT_METHOD(call_hold:(NSString *)uuid
 {
     TVOCall *call = [self getCallFromMap:uuid resolver:resolver];
     if (!call) return;
-    
-    [call setOnHold:onHold];
-    [self resolvePromise:resolver value:@(call.isOnHold)];
+
+    // Persist the hold state to CallKit
+    // This is to fix a bug where when ending a call, if there was another call on hold, the call would not allow voice input/output.
+    CXSetHeldCallAction *holdAction = [[CXSetHeldCallAction alloc] initWithCallUUID:call.uuid onHold:onHold];
+    CXTransaction *transaction = [[CXTransaction alloc] initWithAction:holdAction];
+
+    [self.callKitCallController requestTransaction:transaction completion:^(NSError *error) {
+        if (error) {
+            [call setOnHold:onHold];
+            if (!onHold) {
+                [TwilioVoiceReactNative twilioAudioDevice].enabled = YES;
+            }
+        }
+        [self resolvePromise:resolver value:@(call.isOnHold)];
+    }];
 }
 
 RCT_EXPORT_METHOD(call_isOnHold:(NSString *)uuid
