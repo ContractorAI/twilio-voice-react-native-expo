@@ -54,10 +54,13 @@ class CallListenerProxy implements Call.Listener {
 
     // stop sound and routing
     getMediaPlayerManager().stop();
-    getAudioSwitchManager().getAudioSwitch().deactivate();
 
     // find call record & remove
     CallRecord callRecord = Objects.requireNonNull(getCallRecordDatabase().remove(new CallRecord(uuid)));
+
+    if (getCallRecordDatabase().getCollection().isEmpty()) {
+      getAudioSwitchManager().getAudioSwitch().deactivate();
+    }
 
     // take down notification
     getVoiceServiceApi().cancelActiveCallNotification(callRecord);
@@ -147,7 +150,9 @@ class CallListenerProxy implements Call.Listener {
     // stop audio & cancel notification
     getMediaPlayerManager().stop();
     getMediaPlayerManager().play(MediaPlayerManager.SoundTable.DISCONNECT);
-    getAudioSwitchManager().getAudioSwitch().deactivate();
+    if (getCallRecordDatabase().getCollection().isEmpty()) {
+      getAudioSwitchManager().getAudioSwitch().deactivate();
+    }
     getVoiceServiceApi().cancelActiveCallNotification(callRecord);
 
     // notify JS layer
