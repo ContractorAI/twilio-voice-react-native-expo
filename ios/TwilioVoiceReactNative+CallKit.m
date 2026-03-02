@@ -194,9 +194,14 @@ NSString * const kDefaultCallKitConfigurationName = @"Twilio Voice React Native"
 
 - (void)performAnswerVoiceCallWithUUID:(NSUUID *)uuid
                             completion:(void(^)(BOOL success))completionHandler {
-    NSAssert(self.callInviteMap[uuid.UUIDString], @"No call invite");
-    
     TVOCallInvite *callInvite = self.callInviteMap[uuid.UUIDString];
+
+    if (!callInvite) {
+        NSLog(@"Call invite for UUID %@ not found. The invite was likely cancelled before the answer could be processed.", uuid.UUIDString);
+        completionHandler(NO);
+        return;
+    }
+
     TVOAcceptOptions *acceptOptions = [TVOAcceptOptions optionsWithCallInvite:callInvite block:^(TVOAcceptOptionsBuilder *builder) {
         builder.uuid = uuid;
         builder.callMessageDelegate = self;
@@ -292,7 +297,13 @@ NSString * const kDefaultCallKitConfigurationName = @"Twilio Voice React Native"
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
     [TwilioVoiceReactNative twilioAudioDevice].enabled = NO;
     [TwilioVoiceReactNative twilioAudioDevice].block();
-    
+
+    if (!self.callInviteMap[action.callUUID.UUIDString]) {
+        NSLog(@"Cannot answer call: invite for UUID %@ no longer exists (likely cancelled).", action.callUUID.UUIDString);
+        [action fail];
+        return;
+    }
+
     [self performAnswerVoiceCallWithUUID:action.callUUID completion:^(BOOL success) {
         if (success) {
             NSLog(@"performAnswerVoiceCallWithUUID successful");
@@ -300,7 +311,7 @@ NSString * const kDefaultCallKitConfigurationName = @"Twilio Voice React Native"
             NSLog(@"performAnswerVoiceCallWithUUID failed");
         }
     }];
-        
+
     [action fulfill];
 }
 

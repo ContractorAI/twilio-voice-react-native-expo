@@ -36,7 +36,12 @@
             break;
         }
     }
-    NSAssert(uuid, @"No matching call invite");
+
+    if (!uuid) {
+        NSLog(@"No matching call invite for cancelled call SID %@. The invite may have already been accepted or removed.", cancelledCallInvite.callSid);
+        return;
+    }
+
     self.cancelledCallInviteMap[uuid] = cancelledCallInvite;
 
     [self sendEventWithName:kTwilioVoiceReactNativeScopeCallInvite
@@ -47,9 +52,9 @@
                          kTwilioVoiceReactNativeVoiceErrorKeyError: @{
                            kTwilioVoiceReactNativeVoiceErrorKeyCode: @(error.code),
                            kTwilioVoiceReactNativeVoiceErrorKeyMessage: [error localizedDescription]}}];
-    
+
     [self.callInviteMap removeObjectForKey:uuid];
-    
+
     [self endCallWithUuid:[[NSUUID alloc] initWithUUIDString:uuid]];
 }
 
