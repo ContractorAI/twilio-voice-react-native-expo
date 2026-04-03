@@ -34,10 +34,13 @@ public class VoiceActivityProxy {
   }
   public void onCreate(Bundle ignoredSavedInstanceState) {
     logger.debug("onCreate(): invoked");
-    // Ensure the microphone permission is enabled
+    
+    /* April 3, 2026 - Commenting out the permission check since we are doing permission management in the expo app.
     if (!checkPermissions()) {
       requestPermissions();
     }
+    */
+
     // These flags ensure that the activity can be launched when the screen is locked.
     Window window = context.getWindow();
     window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
