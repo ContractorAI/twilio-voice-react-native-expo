@@ -35,7 +35,11 @@ class MediaPlayerManager {
     soundMap.put(SoundTable.RINGTONE, soundPool.load(context, R.raw.ringtone, 1));
   }
 
-  public void play(final SoundTable sound) {
+  public synchronized void play(final SoundTable sound) {
+    if (activeStream != 0) {
+      soundPool.stop(activeStream);
+      activeStream = 0;
+    }
     activeStream = soundPool.play(
       soundMap.get(sound),
       1.f,
@@ -45,7 +49,7 @@ class MediaPlayerManager {
       1.f);
   }
 
-  public void stop() {
+  public synchronized void stop() {
     soundPool.stop(activeStream);
     activeStream = 0;
   }

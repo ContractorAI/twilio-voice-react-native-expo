@@ -28,6 +28,14 @@ public class VoiceFirebaseMessagingService extends FirebaseMessagingService {
     public void onCallInvite(@NonNull CallInvite callInvite) {
       logger.log(String.format("onCallInvite %s", callInvite.getCallSid()));
 
+      // FCM is at-least-once; drop duplicate deliveries for the same callSid so we
+      // don't spawn a second notification/ringer that can orphan a looping sound stream.
+      if (null != getCallRecordDatabase().get(new CallRecord(callInvite.getCallSid()))) {
+        logger.warning(String.format(
+          "Duplicate call invite ignored for callSid %s", callInvite.getCallSid()));
+        return;
+      }
+
       final CallRecord callRecord = new CallRecord(UUID.randomUUID(), callInvite);
 
       getCallRecordDatabase().add(callRecord);
