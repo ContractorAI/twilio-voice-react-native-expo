@@ -92,33 +92,41 @@ class VoiceModuleProxy {
   public void getAudioDevices(ModuleProxy.UniversalPromise promise) {
     logger.debug(".getAudioDevices()");
 
-    Map<String, AudioDevice> audioDevices = this.audioSwitchManager.getAudioDevices();
-    String selectedAudioDeviceUuid = this.audioSwitchManager.getSelectedAudioDeviceUuid();
-    AudioDevice selectedAudioDevice = this.audioSwitchManager.getSelectedAudioDevice();
+    mainHandler.post(() -> {
+      logger.debug(".getAudioDevices() > runnable");
 
-    WritableMap audioDeviceInfo = ReactNativeArgumentsSerializer.serializeAudioDeviceInfo(
-      audioDevices,
-      selectedAudioDeviceUuid,
-      selectedAudioDevice
-    );
+      Map<String, AudioDevice> audioDevices = this.audioSwitchManager.getAudioDevices();
+      String selectedAudioDeviceUuid = this.audioSwitchManager.getSelectedAudioDeviceUuid();
+      AudioDevice selectedAudioDevice = this.audioSwitchManager.getSelectedAudioDevice();
 
-    promise.resolve(audioDeviceInfo);
+      WritableMap audioDeviceInfo = ReactNativeArgumentsSerializer.serializeAudioDeviceInfo(
+        audioDevices,
+        selectedAudioDeviceUuid,
+        selectedAudioDevice
+      );
+
+      promise.resolve(audioDeviceInfo);
+    });
   }
 
   public void selectAudioDevice(String uuid, ModuleProxy.UniversalPromise promise) {
     logger.debug(".selectAudioDevice()");
 
-    AudioDevice audioDevice = this.audioSwitchManager.getAudioDevices().get(uuid);
-    if (audioDevice == null) {
-      final String warningMsg = this.reactApplicationContext
-        .getString(R.string.missing_audiodevice_uuid, uuid);
-      promise.rejectWithName(CommonConstants.ErrorCodeInvalidArgumentError, warningMsg);
-      return;
-    }
+    mainHandler.post(() -> {
+      logger.debug(".selectAudioDevice() > runnable");
 
-    this.audioSwitchManager.getAudioSwitch().selectDevice(audioDevice);
+      AudioDevice audioDevice = this.audioSwitchManager.getAudioDevices().get(uuid);
+      if (audioDevice == null) {
+        final String warningMsg = this.reactApplicationContext
+          .getString(R.string.missing_audiodevice_uuid, uuid);
+        promise.rejectWithName(CommonConstants.ErrorCodeInvalidArgumentError, warningMsg);
+        return;
+      }
 
-    promise.resolve(null);
+      this.audioSwitchManager.getAudioSwitch().selectDevice(audioDevice);
+
+      promise.resolve(null);
+    });
   }
 
 

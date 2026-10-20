@@ -1,6 +1,8 @@
 package com.twiliovoicereactnative;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.twilio.audioswitch.AudioDevice;
 import com.twilio.audioswitch.AudioSwitch;
@@ -59,6 +61,8 @@ class AudioSwitchManager {
    */
   private String selectedAudioDeviceUuid = null;
 
+  private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
   /**
    * Constructor for the AudioSwitchManager class. Intended to be a singleton.
    * @param context The Android application context
@@ -93,14 +97,16 @@ class AudioSwitchManager {
 
   /**
    * Set a listener for the AudioSwitchManager. The listener function is invoked every time the
-   * AudioSwitch updates. Also invoked at the point the listener is set.
+   * AudioSwitch updates. Also invoked on the main thread right after the listener is set.
    * @param listener A listener function.
    * @return The singleton AudioSwitchManager.
    */
   public AudioSwitchManager setListener(AudioManagerListener listener) {
-    this.listener = listener;
+    mainHandler.post(() -> {
+      this.listener = listener;
 
-    this.listener.apply(audioDevices, selectedAudioDeviceUuid, getSelectedAudioDevice());
+      this.listener.apply(audioDevices, selectedAudioDeviceUuid, getSelectedAudioDevice());
+    });
 
     return this;
   }
