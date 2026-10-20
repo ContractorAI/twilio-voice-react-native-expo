@@ -309,7 +309,9 @@ public class VoiceService extends Service {
 
     // stop ringer sound
     VoiceApplicationProxy.getMediaPlayerManager().stop();
-    VoiceApplicationProxy.getAudioSwitchManager().getAudioSwitch().deactivate();
+    if (getCallRecordDatabase().getCollection().isEmpty()) {
+      VoiceApplicationProxy.getAudioSwitchManager().getAudioSwitch().deactivate();
+    }
 
     // reject call
     callRecord.getCallInvite().reject(VoiceService.this);
@@ -336,7 +338,9 @@ public class VoiceService extends Service {
 
     // stop ringer sound
     VoiceApplicationProxy.getMediaPlayerManager().stop();
-    VoiceApplicationProxy.getAudioSwitchManager().getAudioSwitch().deactivate();
+    if (getCallRecordDatabase().getCollection().isEmpty()) {
+      VoiceApplicationProxy.getAudioSwitchManager().getAudioSwitch().deactivate();
+    }
 
     // notify JS layer
     sendJSEvent(
